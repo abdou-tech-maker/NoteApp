@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:notes/Screens/noteDetail.dart';
-//import 'Screens/noteList.dart';
+import 'package:notes/Screens/noteList.dart';
+import 'Screens/noteList.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       title: ' NoteKeeper',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.deepPurple),
-      home: NoteDetail(),
+      home: NoteList(),
     );
   }
 }
