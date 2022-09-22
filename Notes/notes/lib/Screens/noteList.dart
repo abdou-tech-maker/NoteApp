@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:notes/Screens/noteDetail.dart';
 
 class NoteList extends StatefulWidget {
   @override
@@ -16,7 +17,7 @@ class _NoteListState extends State<NoteList> {
       body: getNoteListView(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          debugPrint('FAB Clicked');
+          navigateToDetail('Add Note');
         },
         tooltip: 'Add Note',
         child: Icon(Icons.add),
@@ -32,22 +33,28 @@ class _NoteListState extends State<NoteList> {
           color: Colors.white,
           elevation: 2.0,
           child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.yellow,
-              child: Icon(Icons.keyboard_arrow_right),
-            ),
-            trailing: Icon(
-              Icons.delete,
-              color: Colors.grey,
-            ),
-            title: Text('Dummy Title'),
-            subtitle: Text('Dummt Date'),
-            onTap: () {
-              print('listtile taped ');
-            },
-          ),
+              leading: CircleAvatar(
+                backgroundColor: Colors.yellow,
+                child: Icon(Icons.keyboard_arrow_right),
+              ),
+              trailing: Icon(
+                Icons.delete,
+                color: Colors.grey,
+              ),
+              title: Text('Dummy Title'),
+              subtitle: Text('Dummt Date'),
+              onTap: () {
+                print('list tile taped ');
+                navigateToDetail('Edit Note');
+              }),
         );
       },
     );
+  }
+
+  void navigateToDetail(String title) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return NoteDetail(title);
+    }));
   }
 }
