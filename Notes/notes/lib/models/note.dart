@@ -2,10 +2,11 @@ class Note {
   int _id;
   String _title;
   String _description;
-  String _date;
   int _priority;
+  String _date;
+
 //Constructor
-  Note(this._title, this._priority, this._date, [this._description]);
+  Note(this._title, this._date, this._priority, [this._description]);
   Note.withId(this._id, this._title, this._priority, this._date,
       [this._description]);
 // Defining Getters

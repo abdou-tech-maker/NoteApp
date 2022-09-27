@@ -20,7 +20,6 @@ class DataBaseHelper {
   factory DataBaseHelper() {
     if (_dataBaseHelper == null) {
       //create instance of database helper only if it's Null
-
       _dataBaseHelper =
           DataBaseHelper._createInstance(); //executed only once "Singelton"
     }
@@ -87,5 +86,19 @@ class DataBaseHelper {
         await db.rawQuery('SELECT COUNT (*) from $noteTable ');
     int result = Sqflite.firstIntValue(x);
     return result;
+  }
+
+  //get the list of map from the database and convert it into List<Note>
+  Future<List<Note>> getNoteList() async {
+    var noteMapList = await getNoteMapList(); // get map list from the Database
+    int count = noteMapList.length;
+
+    // ignore: deprecated_member_use
+    List<Note> noteList = List<Note>();
+    //Create 'NoteList' From 'MapList'
+    for (int i = 0; i < count; i++) {
+      noteList.add(Note.fromMapObject(noteMapList[i]));
+    }
+    return noteList;
   }
 }

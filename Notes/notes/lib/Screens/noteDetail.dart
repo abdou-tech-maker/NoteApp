@@ -1,25 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:notes/models/note.dart';
+import 'package:notes/utils/dataBase_Helper.dart';
+import 'package:sqflite/sqflite.dart';
 
 // ignore: must_be_immutable
 class NoteDetail extends StatefulWidget {
-  String title;
-  NoteDetail(this.title);
+  final String title;
+  final Note note;
+  NoteDetail(this.note, this.title);
   @override
-  State<NoteDetail> createState() => NoteDetailState(title);
+  State<NoteDetail> createState() => NoteDetailState(note, title);
 }
 
 class NoteDetailState extends State<NoteDetail> {
   TextEditingController crtl1 = TextEditingController();
   TextEditingController crtl2 = TextEditingController();
   String title;
+  Note note;
 
-  NoteDetailState(this.title);
+  NoteDetailState(this.note, this.title);
 
-  static var _properties = ['high', 'low'];
-  var _curentvalue = 'low';
+  static var _priorities = ['high', 'low'];
+  DataBaseHelper helper = new DataBaseHelper();
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.headline6;
+    // ignore: deprecated_member_use
+    TextStyle textStyle = Theme.of(context).textTheme.title;
+    crtl1.text = note.title;
+    crtl2.text = note.description;
     return WillPopScope(
         // ignore: missing_return
         onWillPop: () {
@@ -39,16 +48,18 @@ class NoteDetailState extends State<NoteDetail> {
               children: <Widget>[
                 ListTile(
                   title: DropdownButton(
-                    items: _properties.map((String dropDownStringItem) {
+                    items: _priorities.map((String dropDownStringItem) {
                       return DropdownMenuItem<String>(
                         value: dropDownStringItem,
                         child: Text(dropDownStringItem),
                       );
                     }).toList(),
                     style: textStyle,
-                    value: _curentvalue,
-                    onChanged: (String newvalue) {
-                      dropDownChange(newvalue);
+                    value: updatePriorityAsString(note.priority),
+                    onChanged: (valueSelectedByUser) {
+                      setState(() {
+                        updatePriorityAsInt(valueSelectedByUser);
+                      });
                     },
                   ),
                 ),
@@ -59,6 +70,7 @@ class NoteDetailState extends State<NoteDetail> {
                     style: textStyle,
                     onChanged: (value) {
                       debugPrint('dummy text field ');
+                      udpdateTitle();
                     },
                     decoration: InputDecoration(
                         labelText: 'Title',
@@ -75,6 +87,7 @@ class NoteDetailState extends State<NoteDetail> {
                     style: textStyle,
                     onChanged: (value) {
                       debugPrint('dummy text field ');
+                      udpateDescription();
                     },
                     decoration: InputDecoration(
                         labelText: 'Description',
@@ -92,6 +105,9 @@ class NoteDetailState extends State<NoteDetail> {
                           child: ElevatedButton(
                         child: Text('Save'),
                         onPressed: () {
+                          setState(() {
+                            _save();
+                          });
                           /* Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -109,6 +125,9 @@ class NoteDetailState extends State<NoteDetail> {
                           child: ElevatedButton(
                         child: Text('Delete'),
                         onPressed: () {
+                          setState(() {
+                            _delete();
+                          });
                           /*  Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -129,12 +148,83 @@ class NoteDetailState extends State<NoteDetail> {
   }
 
   void moveToLastScreen() {
-    Navigator.pop(context);
+    Navigator.pop(context, true);
   }
 
-  void dropDownChange(newvalue) {
-    setState(() {
-      this._curentvalue = newvalue;
-    });
+  //convert string priority to integer priority
+  void updatePriorityAsInt(String value) {
+    switch (value) {
+      case 'high':
+        note.priority = 1;
+        break;
+      case 'low':
+        note.priority = 2;
+        break;
+    }
+  }
+
+  //convert Int Priority to String Priority
+  String updatePriorityAsString(int value) {
+    String priority;
+    switch (value) {
+      case 1:
+        priority = _priorities[0]; //high
+        break;
+      case 2:
+        priority = _priorities[1]; //low
+        break;
+    }
+    return priority;
+  }
+
+//Update The Title Of The Note Object
+  void udpdateTitle() {
+    note.title = crtl1.text;
+  }
+
+  //Update The Description Of The Note Object
+  void udpateDescription() {
+    note.description = crtl2.text;
+  }
+
+//Saving Or Updating a Note When Button Save is Clicked
+  void _save() async {
+    moveToLastScreen();
+    note.date = DateFormat.yMMMd().format(DateTime.now());
+    int result;
+    if (note.id != null) {
+      result = await helper.updateNote(note);
+    } else {
+      result = await helper.insertInto(note);
+    }
+    if (result != 0) {
+      _showAlertDialog('Status', 'Note Saved Successfuly');
+    } else {
+      _showAlertDialog('Status', 'Problem In Saving Note ');
+    }
+  }
+
+  void _showAlertDialog(String title, String message) {
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+    );
+    showDialog(context: context, builder: (_) => alert);
+  }
+
+  void _delete() async {
+    moveToLastScreen();
+//Case 1 Deleting When Comming from The Adding Button
+    if (note.id == null) {
+      _showAlertDialog('Status', 'No Note Was Deleted');
+      return;
+    }
+    int result = await helper.deleteNote(note.id);
+
+    if (result != 0) {
+      _showAlertDialog('Status', 'Note Deleted Successfuly');
+    } else {
+      _showAlertDialog('Status', 'Problem In Deleting Note ');
+    }
   }
 }
