@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:notes/models/note.dart';
 import 'package:notes/utils/dataBase_Helper.dart';
-import 'package:sqflite/sqflite.dart';
 
-// ignore: must_be_immutable
+//import 'package:sqflite/sqflite.dart';
 class NoteDetail extends StatefulWidget {
   final String title;
   final Note note;
@@ -25,8 +24,7 @@ class NoteDetailState extends State<NoteDetail> {
   DataBaseHelper helper = new DataBaseHelper();
   @override
   Widget build(BuildContext context) {
-    // ignore: deprecated_member_use
-    TextStyle textStyle = Theme.of(context).textTheme.title;
+    TextStyle textStyle = Theme.of(context).textTheme.headline6;
     crtl1.text = note.title;
     crtl2.text = note.description;
     return WillPopScope(
